@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+
 const footerMode = ["All", "Active", "Completed"];
 
 const AppFooter = ({
@@ -8,22 +10,21 @@ const AppFooter = ({
   showMode,
 }) => {
   const handleClick = (e) => {
-    // console.log(e.target.innerText);
     switchResultMode(e.target.innerText);
   };
   const handleDeleteAllSelected = () => {
     deleteWork(selectedWorkIndex);
   };
-  const getStatus = () => {
-    const itemLeft = workList.length - selectedWorkIndex.length;
+  const getStatus = useMemo(() => {
+    const itemLeft = workList.filter((item) => item.completed === false).length;
     let isMany;
     itemLeft < 2 ? (isMany = "item") : (isMany = "items");
 
-    return `${itemLeft} ${isMany} left`;
-  };
+    return { title: `${itemLeft} ${isMany} left`, itemLeft: itemLeft };
+  }, [workList, selectedWorkIndex.length, showMode]);
   return (
     <div className="appFooter">
-      <span>{getStatus()}</span>
+      <span>{getStatus.title}</span>
       <span className="footerMid">
         {footerMode.map((item) => (
           <span

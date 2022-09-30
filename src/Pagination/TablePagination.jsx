@@ -14,10 +14,10 @@ class TablePagination extends React.Component {
   }
   componentDidUpdate(preProps, preState) {
     const { currentPage, totalRecord, pageSize } = this.props;
-    console.log(
-      "🚀 ~ file: TablePagination.jsx ~ line 17 ~ TablePagination ~ componentDidUpdate ~ totalRecord",
-      totalRecord
-    );
+    // console.log(
+    //   "🚀 ~ file: TablePagination.jsx ~ line 17 ~ TablePagination ~ componentDidUpdate ~ totalRecord",
+    //   totalRecord
+    // );
     const { paginationList } = this.state;
     const lastPage = paginationList[paginationList.length - 1];
     if (currentPage * pageSize - totalRecord === pageSize && currentPage > 1) {

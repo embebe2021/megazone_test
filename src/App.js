@@ -7,10 +7,10 @@ import AppResult from "./AppResult/AppResult";
 function createWork(workName) {
   return {
     name: workName,
-    active: false,
     completed: false,
   };
 }
+
 function toggleCompletedWork(work, value) {
   value === undefined
     ? (work.completed = !work.completed)
@@ -18,60 +18,79 @@ function toggleCompletedWork(work, value) {
   return work;
 }
 
+function getStateWorkFromLocal() {
+  const appState = window.localStorage.getItem("workListState");
+  if (appState) {
+    return JSON.parse(appState);
+  } else {
+    return {
+      data: [],
+      status: true,
+      selectedIndex: [],
+    };
+  }
+}
+function saveStateToLocal(state) {
+  return window.localStorage.setItem("workListState", JSON.stringify(state));
+}
+
 function App() {
-  const [workList, setWorkList] = useState({
-    data: [],
-    status: true,
-    selectedIndex: [],
-  });
+  const appState = getStateWorkFromLocal();
+  const [workList, setWorkList] = useState(appState);
   const [showMode, setShowMode] = useState("All");
 
-  // console.log(workList);
   const addAWork = (workName) => {
     let work = createWork(workName);
-    setWorkList((lastWorkList) => ({
-      ...lastWorkList,
-      status: false,
-      data: [...lastWorkList.data, work],
-    }));
+    setWorkList((lastWorkList) => {
+      let resultState = {
+        ...lastWorkList,
+        status: false,
+        data: [...lastWorkList.data, work],
+      };
+      saveStateToLocal(resultState);
+      return resultState;
+    });
   };
 
   const deleteWork = (listIndex) => {
-    console.log(
-      "🚀 ~ file: App.js ~ line 40 ~ deleteWork ~ listIndex",
-      listIndex
-    );
     let workListClone = JSON.parse(JSON.stringify(workList.data));
 
     for (let i = 0; i < listIndex.length; i++) {
-      // const getSelectedWorkIndex = workListClone.indexOf(
-      //   workListClone[listIndex[i]]
-      // );
-      // console.log(i);
-      // console.log(
-      //   "🚀 ~ file: App.js ~ line 50 ~ deleteWork ~ getSelectedWorkIndex",
-      //   getSelectedWorkIndex
-      // );
-      // workListClone.splice(getSelectedWorkIndex, 1);
       workListClone[listIndex[i]] = null;
     }
-    console.log(workListClone);
-    console.log(workListClone.filter((item) => item));
+    const resultWork = workListClone.filter((item) => item);
+    let resultIndex = [];
+    resultWork.forEach((item, index) => {
+      console.log(item);
+      if (item?.completed === true) {
+        resultIndex.push(index);
+      }
+    });
 
-    setWorkList((lastWorkList) => ({
-      status: false,
-      data: workListClone.filter((item) => item),
-      selectedIndex: [],
-    }));
+    setWorkList((lastWorkList) => {
+      const resultState = {
+        ...lastWorkList,
+        status: false,
+        data: resultWork,
+        selectedIndex: resultIndex,
+      };
+      saveStateToLocal(resultState);
+      return resultState;
+    });
   };
 
   const updateWorkName = (index, value) => {
     let workListClone = workList.data;
     workListClone[index].name = value;
-    setWorkList((lastWorkList) => ({
-      ...lastWorkList,
-      data: workListClone,
-    }));
+
+    setWorkList((lastWorkList) => {
+      const resultState = {
+        ...lastWorkList,
+        data: workListClone,
+      };
+      saveStateToLocal(resultState);
+      return resultState;
+    });
   };
 
   const updateWorkList = (listIndex, setValue) => {
@@ -92,9 +111,11 @@ function App() {
         );
       }
     }
+
     setWorkList((lastWorkList) => {
+      let resultState;
       if (setValue === undefined) {
-        return {
+        resultState = {
           selectedIndex: selectedWorkIndexClone,
           status: false,
           data: workListClone,
@@ -103,12 +124,14 @@ function App() {
         setValue
           ? (selectedWorkIndexClone = listIndex)
           : (selectedWorkIndexClone = []);
-        return {
+        resultState = {
           selectedIndex: selectedWorkIndexClone,
           data: workListClone,
           status: setValue,
         };
       }
+      saveStateToLocal(resultState);
+      return resultState;
     });
   };
 
@@ -139,6 +162,7 @@ function App() {
           workList={workList.data}
           resultShowMode={showMode}
           updateWorkList={updateWorkList}
+          selectedWorkIndex={workList.selectedIndex}
           deleteWork={deleteWork}
           updateWorkName={updateWorkName}
         />

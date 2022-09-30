@@ -7,7 +7,7 @@ class WorkItem extends React.Component {
     this.inputRef = React.createRef();
     this.state = {
       checked: completed,
-      isDisable: true,
+      isOnEdit: false,
       workName: name,
     };
   }
@@ -18,7 +18,9 @@ class WorkItem extends React.Component {
       this.setState({ checked: lastCheckUpdate });
     }
   }
-
+  componentWillUnmount() {
+    this.inputRef.current.removeEventListener("keydown", this.listenOnInput);
+  }
   handleCheck() {
     const { index, onToggle } = this.props;
     const { checked } = this.state;
@@ -33,36 +35,64 @@ class WorkItem extends React.Component {
     onDeleteWork([index]);
   }
   openEdit() {
-    const { isDisable } = this.state;
+    const inputElement = this.inputRef.current;
+
+    inputElement.addEventListener("keydown", (e) => this.listenOnInput(e));
     this.setState(
       {
-        isDisable: !isDisable,
+        isOnEdit: true,
       },
       () => {
         let x = setTimeout(() => {
           clearTimeout(x);
           this.inputRef.current.focus();
+          let val = inputElement.value;
+          inputElement.value = "";
+          inputElement.value = val;
         }, 10);
       }
     );
   }
+  listenOnInput = (e) => {
+    const { name } = this.props.work;
+    const lastValue = name;
+    const inputElement = this.inputRef.current;
+    if (e.keyCode === 27) {
+      this.setState(
+        {
+          isOnEdit: false,
+          workName: lastValue,
+        },
+        () => {
+          inputElement.addEventListener("keydown", this.listenOnInput);
+        }
+      );
+    }
+  };
   handleChangeWorkName(e) {
     this.setState({
       workName: e.target.value,
+      editDraft: e.target.value,
     });
   }
   handleBlur() {
     const { workName } = this.state;
-    // console.log(
-    //   "🚀 ~ file: WorkItem.jsx ~ line 56 ~ WorkItem ~ handleBlur ~ workName",
-    //   workName
-    // );
+    const { updateWorkName, index } = this.props;
+    const inputElement = this.inputRef.current;
     if (workName.length < 1) {
       this.deleteThisWork();
+    } else {
+      this.setState(
+        {
+          isOnEdit: false,
+          workName: workName,
+        },
+        () => {
+          updateWorkName(index, workName);
+          inputElement.addEventListener("keydown", this.listenOnInput);
+        }
+      );
     }
-    this.setState({
-      isDisable: true,
-    });
   }
   handleSubmitWorkName(e) {
     e.preventDefault();
@@ -74,16 +104,15 @@ class WorkItem extends React.Component {
     } else {
       this.deleteThisWork();
     }
-    // console.log(this.state.workName);
   }
   render() {
-    const { checked, isDisable, workName } = this.state;
+    const { checked, isOnEdit, workName } = this.state;
     const getInputClassName = () => {
       let name = "itemInput";
       if (checked) {
         name = `${name} itemInputComplete`;
       }
-      if (!isDisable) {
+      if (isOnEdit) {
         name = `${name} itemInputOnEdit`;
       }
       return name;
@@ -110,7 +139,7 @@ class WorkItem extends React.Component {
             className={getInputClassName()}
             ref={this.inputRef}
             type="text"
-            disabled={isDisable}
+            disabled={!isOnEdit}
             value={workName}
             onChange={this.handleChangeWorkName.bind(this)}
             onBlur={this.handleBlur.bind(this)}

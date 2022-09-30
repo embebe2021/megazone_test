@@ -19,6 +19,7 @@ const AppResult = ({
   workList,
   updateWorkList,
   resultShowMode,
+  selectedWorkIndex,
   deleteWork,
   updateWorkName,
 }) => {
@@ -54,16 +55,16 @@ const AppResult = ({
         result = cloneWorkList;
     }
     let pageData = listByCurrentPage(result, currentPage, pageSize);
-    console.log(
-      "🚀 ~ file: AppResult.jsx ~ line 52 ~ useEffect ~ pageData",
-      pageData
-    );
+    // console.log(
+    //   "🚀 ~ file: AppResult.jsx ~ line 52 ~ useEffect ~ pageData",
+    //   pageData
+    // );
     setPagination((prev) => ({
       ...prev,
       listAllWork: result,
       listToShow: pageData,
     }));
-  }, [workList, resultShowMode, currentPage]);
+  }, [workList, resultShowMode, currentPage, selectedWorkIndex.length]);
 
   const onToggle = (index) => {
     updateWorkList([index]);
