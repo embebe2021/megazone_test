@@ -37,17 +37,30 @@ function App() {
   };
 
   const deleteWork = (listIndex) => {
+    console.log(
+      "🚀 ~ file: App.js ~ line 40 ~ deleteWork ~ listIndex",
+      listIndex
+    );
     let workListClone = JSON.parse(JSON.stringify(workList.data));
 
     for (let i = 0; i < listIndex.length; i++) {
-      const getSelectedWorkIndex = workListClone.indexOf(
-        workListClone[listIndex[i]]
-      );
-      workListClone.splice(getSelectedWorkIndex, 1);
+      // const getSelectedWorkIndex = workListClone.indexOf(
+      //   workListClone[listIndex[i]]
+      // );
+      // console.log(i);
+      // console.log(
+      //   "🚀 ~ file: App.js ~ line 50 ~ deleteWork ~ getSelectedWorkIndex",
+      //   getSelectedWorkIndex
+      // );
+      // workListClone.splice(getSelectedWorkIndex, 1);
+      workListClone[listIndex[i]] = null;
     }
+    console.log(workListClone);
+    console.log(workListClone.filter((item) => item));
+
     setWorkList((lastWorkList) => ({
       status: false,
-      data: workListClone,
+      data: workListClone.filter((item) => item),
       selectedIndex: [],
     }));
   };
