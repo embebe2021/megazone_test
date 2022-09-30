@@ -61,7 +61,6 @@ function App() {
     const resultWork = workListClone.filter((item) => item);
     let resultIndex = [];
     resultWork.forEach((item, index) => {
-      console.log(item);
       if (item?.completed === true) {
         resultIndex.push(index);
       }

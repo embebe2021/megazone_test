@@ -64,7 +64,7 @@ class WorkItem extends React.Component {
           workName: lastValue,
         },
         () => {
-          inputElement.addEventListener("keydown", this.listenOnInput);
+          inputElement.removeEventListener("keydown", this.listenOnInput);
         }
       );
     }
@@ -89,14 +89,14 @@ class WorkItem extends React.Component {
         },
         () => {
           updateWorkName(index, workName);
-          inputElement.addEventListener("keydown", this.listenOnInput);
+          inputElement.removeEventListener("keydown", this.listenOnInput);
         }
       );
     }
   }
   handleSubmitWorkName(e) {
     e.preventDefault();
-    // console.log(e);
+    const inputElement = this.inputRef.current;
     const { workName } = this.state;
     const { updateWorkName, index } = this.props;
     if (workName.length > 0) {
@@ -104,6 +104,7 @@ class WorkItem extends React.Component {
     } else {
       this.deleteThisWork();
     }
+    inputElement.removeEventListener("keydown", this.listenOnInput);
   }
   render() {
     const { checked, isOnEdit, workName } = this.state;
